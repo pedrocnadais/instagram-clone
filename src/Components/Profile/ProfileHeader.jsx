@@ -10,13 +10,20 @@ import {
 import useUserProfileStore from "../../Store/userProfileStore";
 import useAuthStore from "../../Store/authStore";
 import EditProfile from "./EditProfile";
+import useFollowUser from "../../Hooks/useFollowUser";
 
 const ProfileHeader = () => {
-  const {userProfile} = useUserProfileStore();
-  const authUser = useAuthStore(state => state.user)
-  const visitingOwnProfileAndAuth = authUser && authUser.username === userProfile.username;
-  const visitingAnotherProfileAndAuth = authUser && authUser.username !== userProfile.username;
-  const {isOpen, onOpen, onClose} = useDisclosure()
+  const { userProfile } = useUserProfileStore();
+  const authUser = useAuthStore((state) => state.user);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isFollowing, isUpdating, handleFollowUser } = useFollowUser(
+    userProfile?.uid
+  );
+
+  const visitingOwnProfileAndAuth =
+    authUser && authUser.username === userProfile.username;
+  const visitingAnotherProfileAndAuth =
+    authUser && authUser.username !== userProfile.username;
 
   return (
     <Flex
@@ -31,10 +38,7 @@ const ProfileHeader = () => {
         alignSelf={"flex-start"}
         mx={"auto"}
       >
-        <Avatar
-          src={userProfile.profilePicURL}
-          alt="As a programmer logo"
-        />
+        <Avatar src={userProfile.profilePicURL} alt="As a programmer logo" />
       </AvatarGroup>
 
       {/* username, edit profile/follow button, posts, followers, following, profile name, bio */}
@@ -47,12 +51,20 @@ const ProfileHeader = () => {
           w={"full"}
         >
           {/* username */}
-          <Text fontSize={{ base: "sm", md: "lg" }}>{userProfile.username}</Text>
+          <Text fontSize={{ base: "sm", md: "lg" }}>
+            {userProfile.username}
+          </Text>
 
           {/* edit profile button */}
           {visitingOwnProfileAndAuth && (
             <Flex gap={4} alignItems={"center"} justifyContent={"center"}>
-              <Button bg={"white"} color={"black"} _hover={{ bg: "whiteAlpha.800" }} size={{ base: "xs", md: "sm" }} onClick={onOpen}>
+              <Button
+                bg={"white"}
+                color={"black"}
+                _hover={{ bg: "whiteAlpha.800" }}
+                size={{ base: "xs", md: "sm" }}
+                onClick={onOpen}
+              >
                 Edit Profile
               </Button>
             </Flex>
@@ -60,17 +72,22 @@ const ProfileHeader = () => {
           {/* follow or unfollow button */}
           {visitingAnotherProfileAndAuth && (
             <Flex gap={4} alignItems={"center"} justifyContent={"center"}>
-              <Button bg={"blue.500"} color={"white"} _hover={{ bg: "blue.600" }} size={{ base: "xs", md: "sm" }}>
-                Follow/Unfollow
+              <Button
+                bg={"blue.500"}
+                color={"white"}
+                _hover={{ bg: "blue.600" }}
+                size={{ base: "xs", md: "sm" }}
+                onClick={handleFollowUser}
+                isLoading={isUpdating}
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
               </Button>
             </Flex>
           )}
-          
         </Flex>
 
         {/* posts, followers, following */}
         <Flex alignItems={"center"} gap={{ base: 2, sm: 4 }}>
-
           {/* posts */}
           <Text fontSize={{ base: "xs", md: "sm" }}>
             <Text as="span" fontWeight={"bold"} mr={1}>

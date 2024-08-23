@@ -9,7 +9,7 @@ const HomePage = () => {
         <Box flex={2} py={10}>
           <FeedPosts />
         </Box>
-        <Box
+        <Box 
           flex={3}
           mr={30}
           display={{ base: "none", md: "block" }}

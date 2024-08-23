@@ -3,21 +3,17 @@ import HomePage from "./Pages/HomePage/HomePage";
 import AuthPage from "./Pages/AuthPage/AuthPage";
 import PageLayout from "./Layouts/PageLayout/PageLayout";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
-import useAuthStore from "./Store/authStore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./Firebase/firebase";
 
 function App() {
-  const authUser = useAuthStore((state) => state.user);
+  const [authUser] = useAuthState(auth)
+
   return (
     <PageLayout>
       <Routes>
-        <Route
-          path="/"
-          element={authUser ? <HomePage /> : <Navigate to="/auth" />}
-        />
-        <Route
-          path="/auth"
-          element={!authUser ? <AuthPage /> : <Navigate to="/" />}
-        />
+        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/auth" />} />
+        <Route path="/auth" element={!authUser ? <AuthPage /> : <Navigate to="/" />} />
         <Route path="/:username" element={<ProfilePage />} />
       </Routes>
     </PageLayout>

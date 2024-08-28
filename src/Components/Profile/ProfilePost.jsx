@@ -15,17 +15,52 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { AiFillHeart } from "react-icons/ai";
-import { FaBookmark, FaComment } from "react-icons/fa";
+import { FaComment } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Comment from "../Comments/Comment";
 import PostFooter from "../FeedPosts/PostFooter";
 import useUserProfileStore from "../../Store/userProfileStore";
 import useAuthStore from "../../Store/authStore";
+import useShowToast from "../../Hooks/useShowToast";
+import { useState } from "react";
+import { deleteObject, ref } from "firebase/storage";
+import { firestore, storage } from "../../Firebase/firebase";
+import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import usePostStore from "../../Store/postStore";
 
 const ProfilePost = ({ post }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const userProfile = useUserProfileStore(state=>state.userProfile)
-  const authUser = useAuthStore(state=>state.user)
+  const userProfile = useUserProfileStore((state) => state.userProfile);
+  const authUser = useAuthStore((state) => state.user);
+  const showToast = useShowToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deletePost = usePostStore((state) => state.deletePost);
+  const decrementPostsCount = useUserProfileStore((state) => state.deletePost);
+
+  const handleDeletePost = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    if (isDeleting) return;
+    setIsDeleting(true);
+
+    try {
+      const imageRef = ref(storage, `posts/${post.id}`);
+      await deleteObject(imageRef);
+      await deleteDoc(doc(firestore, "posts", post.id));
+
+      const userRef = doc(firestore, "users", authUser.uid);
+      await updateDoc(userRef, {
+        posts: arrayRemove(post.id),
+      });
+
+      deletePost(post.id);
+      decrementPostsCount(post.id);
+      showToast("Success", "Post deleted successfully", "success");
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -52,7 +87,7 @@ const ProfilePost = ({ post }) => {
           zIndex={1}
           justifyContent={"center"}
         >
-          {/* likes, comments, saves */}
+          {/* likes, comments, maybe saves */}
           <Flex alignItems={"center"} justifyContent={"center"} gap={2}>
             {/* likes */}
             <Flex>
@@ -69,14 +104,6 @@ const ProfilePost = ({ post }) => {
                 {post.comments.length}
               </Text>
             </Flex>
-
-            {/* saves */}
-            {/* <Flex>
-              <FaBookmark size={20} />
-              <Text fontWeight={"bold"} ml={2}>
-                {post.saves.length}
-              </Text>
-            </Flex> */}
           </Flex>
         </Flex>
 
@@ -103,8 +130,8 @@ const ProfilePost = ({ post }) => {
               gap={4}
               w={{ base: "90%", sm: "70%", md: "full" }}
               mx={"auto"}
-              maxH={'90vh'}
-              minH={'50vh'}
+              maxH={"90vh"}
+              minH={"50vh"}
             >
               <Flex
                 borderRadius={4}
@@ -112,8 +139,8 @@ const ProfilePost = ({ post }) => {
                 border={"1px solid"}
                 borderColor={"whiteAlpha.300"}
                 flex={1.5}
-                justifyContent={'center'}
-                alignItems={'center'}
+                justifyContent={"center"}
+                alignItems={"center"}
               >
                 <Image src={post.imageURL} alt="profile post" />
               </Flex>
@@ -125,21 +152,21 @@ const ProfilePost = ({ post }) => {
               >
                 <Flex alignItems={"center"} justifyContent={"space-between"}>
                   <Flex alignItems={"center"} gap={4}>
-                    <Avatar
-                      src={userProfile.profilePicURL}
-                      size={"sm"}
-                    />
+                    <Avatar src={userProfile.profilePicURL} size={"sm"} />
                     <Text fontWeight={"bold"} fontSize={12}>
                       {userProfile.username}
                     </Text>
                   </Flex>
+
                   {authUser?.uid === userProfile.uid && (
                     <Button
-                    size={'sm'}
-                    bg={'transparent'}
+                      size={"sm"}
+                      bg={"transparent"}
                       _hover={{ bg: "whiteAlpha.300", color: "red.600" }}
                       borderRadius={4}
                       p={1}
+                      onClick={handleDeletePost}
+                      isLoading={isDeleting}
                     >
                       <MdDelete size={20} cursor={"pointer"} />
                     </Button>
@@ -153,11 +180,14 @@ const ProfilePost = ({ post }) => {
                   maxH={"350px"}
                   overflow={"auto"}
                 >
+                  {post.comments.map(comment => (
+                    <Comment key={comment.id} comment={comment} />
+                  ))}
                 </VStack>
 
-                <Divider my={4} bg={"gray.500"} />
+                {/* <Divider my={4} bg={"gray.500"} /> */}
 
-                <PostFooter isProfilePage={true} />
+                <PostFooter isProfilePage={true} post={post} />
               </Flex>
             </Flex>
           </ModalBody>

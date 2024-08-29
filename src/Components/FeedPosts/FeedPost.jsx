@@ -7,11 +7,11 @@ const FeedPost = ({ post }) => {
   const {userProfile} = useGetUserProfileById(post.createdBy)
   return (
     <>
-      <PostHeader post={post} createrProfile={userProfile} />
+      <PostHeader post={post} creatorProfile={userProfile} />
       <Box my={2} borderRadius={4} overflow={"hidden"}>
         <Image src={post.imageURL} alt={'FEED POST IMG'} />
       </Box>
-      <PostFooter post={post} createrProfile={userProfile} />
+      <PostFooter post={post} creatorProfile={userProfile} />
     </>
   );
 };

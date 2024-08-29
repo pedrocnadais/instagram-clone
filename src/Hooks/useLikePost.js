@@ -26,7 +26,8 @@ const useLikePost = (post) => {
       await updateDoc(postRef, {
         likes: isLiked ? arrayRemove(authUser.uid) : arrayUnion(authUser.uid),
       });
-      setIsLiked(!isLiked);
+      setIsLiked(prevIsLiked => !prevIsLiked);
+      setLikes(prevLikes => (isLiked ? prevLikes -1 : prevLikes + 1));
       isLiked ? setLikes(likes - 1) : setLikes(likes + 1);
     } catch (error) {
      showToast('Error', error.message, 'error')
@@ -34,7 +35,7 @@ const useLikePost = (post) => {
      setIsUpdating(false)
     }
   };
-  return {isLiked, handleLikePost, isUpdating}
+  return {isLiked, likes, handleLikePost, isUpdating}
 };
 
 export default useLikePost;

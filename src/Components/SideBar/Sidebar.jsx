@@ -9,7 +9,7 @@ import { BiLogOut } from "react-icons/bi";
 import useLogout from "../../Hooks/useLogout";
 import SidebarItems from "./SidebarItems";
 
-export const Sidebar = () => {
+const Sidebar = () => {
   const {handleLogout, isLogginOut} = useLogout()
 
   return (
@@ -80,3 +80,5 @@ export const Sidebar = () => {
     </Box>
   );
 };
+
+export default Sidebar;

@@ -116,7 +116,7 @@ const PostFooter = ({ post, isProfilePage, creatorProfile }) => {
                   onClick={handleSubmitComment}
                   isLoading={isCommenting}
                 >
-                  Post
+                  Comment
                 </Button>
               </InputRightElement>
             </InputGroup>

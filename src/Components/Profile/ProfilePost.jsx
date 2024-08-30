@@ -28,6 +28,7 @@ import { firestore, storage } from "../../Firebase/firebase";
 import { arrayRemove, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import usePostStore from "../../Store/postStore";
 import Caption from "../../Components/Comments/Caption";
+import useLikePost from "../../Hooks/useLikePost";
 
 const ProfilePost = ({ post }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +38,9 @@ const ProfilePost = ({ post }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const deletePost = usePostStore((state) => state.deletePost);
   const decrementPostsCount = useUserProfileStore((state) => state.deletePost);
+
+  const { isLiked, likes, handleLikePost } = useLikePost(post); // Use the hook here
+
 
   const handleDeletePost = async () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -88,13 +92,14 @@ const ProfilePost = ({ post }) => {
           zIndex={1}
           justifyContent={"center"}
         >
-          {/* likes, comments, maybe saves */}
+          {/* likes, comments */}
           <Flex alignItems={"center"} justifyContent={"center"} gap={2}>
+
             {/* likes */}
             <Flex>
               <AiFillHeart size={20} />
               <Text fontWeight={"bold"} ml={2}>
-                {post.likes.length}
+                {likes}
               </Text>
             </Flex>
 
@@ -191,7 +196,7 @@ const ProfilePost = ({ post }) => {
                 </VStack>
                 <Divider my={4} bg={"gray.8000"} />
 
-                <PostFooter isProfilePage={true} post={post} />
+                <PostFooter isProfilePage={true} post={post} likes={likes} isLiked={isLiked} handleLikePost={handleLikePost} />
               </Flex>
             </Flex>
           </ModalBody>
@@ -202,3 +207,4 @@ const ProfilePost = ({ post }) => {
 };
 
 export default ProfilePost;
+

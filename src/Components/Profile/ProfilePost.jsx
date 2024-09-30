@@ -148,7 +148,14 @@ const ProfilePost = ({ post }) => {
                 justifyContent={"center"}
                 alignItems={"center"}
               >
-                <Image src={post.imageURL} alt="profile post" />
+                <Image src={post.imageURL} 
+              // added onError 03/09
+          //       onError={(e) => {
+          //   e.target.src = "";
+          // e.target.style.display = 'none';
+          //   console.error("Failed to load image:", e.target.src);
+          // }} 
+          alt="profile post" />
               </Flex>
               <Flex
                 flex={1}

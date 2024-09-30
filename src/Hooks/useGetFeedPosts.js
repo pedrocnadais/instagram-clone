@@ -33,6 +33,8 @@ const useGetFeedPosts = () => {
           feedPosts.push({ id: doc.id, ...doc.data() });
         });
 
+        console.log("Fetched feed posts:", feedPosts)
+        
         feedPosts.sort((a, b) => b.createdAt - a.createdAt);
         setPosts(feedPosts);
       } catch (error) {
@@ -43,6 +45,7 @@ const useGetFeedPosts = () => {
     };
     if (authUser) getFeedPosts();
   }, [authUser, showToast, setPosts, setUserProfile]);
+
 
   return { isLoading, posts };
 };
